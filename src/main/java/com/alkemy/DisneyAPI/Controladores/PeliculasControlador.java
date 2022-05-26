@@ -41,6 +41,7 @@ public class PeliculasControlador {
         
         List<Pelicula> peliculas = servicioPelicula.buscarTodasLasPeliculas();
         
+        // TODO: HACER UN METODO PARA EL FILTRO
         // Filtros: si se buscó con un filtro, se sobre escribe personajes con los datos del filtro
         if(titulo != null){
             peliculas = servicioPelicula.buscarPeliculasPorTitulo(titulo);

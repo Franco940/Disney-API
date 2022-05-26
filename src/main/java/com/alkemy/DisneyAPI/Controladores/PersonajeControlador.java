@@ -38,24 +38,8 @@ public class PersonajeControlador {
             @RequestParam(required = false, name = "idPelicula") String idPelicula, 
             @RequestParam(required = false, name = "idPersonaje") String idPersonaje) throws Exception{
         
-        List<Personaje> personajes = personajeServicio.buscarTodosLosPersonajes();;
-        
-        // Filtros: si se buscó con un filtro, se sobre escribe personajes con los datos del filtro
-        if(idPersonaje != null){
-            personajes = (List<Personaje>) personajeServicio.buscarPersonajePorId(Long.valueOf(idPersonaje));
-        }
-        if(nombre != null){
-            personajes = personajeServicio.buscarPersonajePorNombre(nombre);
-        }
-        if(edad != null){
-            personajes = personajeServicio.buscarPersonajePorEdad(Integer.valueOf(edad));
-        }
-        if(peso != null){
-            personajes = personajeServicio.buscarPersonajePorPeso(Integer.valueOf(peso));
-        }
-        if(idPelicula != null){
-            personajes = personajeServicio.buscarPersonajeEnPeliculas(Integer.valueOf(idPelicula));
-        }
+        // Se busca la información acorde a la petición
+        List<Personaje> personajes = personajesAcordeAlFiltro(idPersonaje, nombre, edad, peso, idPelicula);
         
         // Se adapta la información a lo solicitado
         List<PersonajeResponse> response = new ArrayList();
@@ -87,31 +71,7 @@ public class PersonajeControlador {
             @RequestParam(required = false, name = "peliculas") String[] peliculas) throws Exception{
         
         Personaje personajeAModificar = personajeServicio.buscarPersonajePorId(Long.valueOf(id));
-        Map<String, String> datosAModificar = new HashMap();
-        
-        if(nombre != null){
-            datosAModificar.put("nombre", nombre);
-        }else{
-            datosAModificar.put("nombre", personajeAModificar.getNombre());
-        }
-        
-        if(edad != null){
-            datosAModificar.put("edad", String.valueOf(edad));
-        }else{
-            datosAModificar.put("edad", String.valueOf(personajeAModificar.getEdad()));
-        }
-        
-        if(peso != null){
-            datosAModificar.put("peso", String.valueOf(peso));
-        }else{
-            datosAModificar.put("peso", String.valueOf(personajeAModificar.getPeso()));
-        }
-        
-        if(historia != null){
-            datosAModificar.put("historia", historia);
-        }else{
-            datosAModificar.put("historia", personajeAModificar.getHistoria());
-        }
+        Map<String, String> datosAModificar = guardarDatosAModificar(personajeAModificar, nombre, edad, peso, historia);
         
         return personajeServicio.modificarPersonaje(personajeAModificar, datosAModificar, peliculas, imagen);
     }
@@ -121,5 +81,57 @@ public class PersonajeControlador {
         personajeServicio.borrarPersonaje(Long.valueOf(id));
         
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+    
+    private List<Personaje> personajesAcordeAlFiltro(String idPersonaje, String nombre, String edad, String peso, String idPelicula){
+        List<Personaje> personajes = personajeServicio.buscarTodosLosPersonajes();
+        
+        if(idPersonaje != null){
+            personajes = (List<Personaje>) personajeServicio.buscarPersonajePorId(Long.valueOf(idPersonaje));
+        }
+        if(nombre != null){
+            personajes = personajeServicio.buscarPersonajePorNombre(nombre);
+        }
+        if(edad != null){
+            personajes = personajeServicio.buscarPersonajePorEdad(Integer.valueOf(edad));
+        }
+        if(peso != null){
+            personajes = personajeServicio.buscarPersonajePorPeso(Integer.valueOf(peso));
+        }
+        if(idPelicula != null){
+            personajes = personajeServicio.buscarPersonajeEnPeliculas(Integer.valueOf(idPelicula));
+        }
+        
+        return personajes;
+    }
+    
+    private Map<String, String> guardarDatosAModificar(Personaje personajeSinModificar, String nombre, Integer edad, Integer peso, String historia){
+        Map<String, String> datosAModificar = new HashMap();
+        
+        if(nombre != null){
+            datosAModificar.put("nombre", nombre);
+        }else{
+            datosAModificar.put("nombre", personajeSinModificar.getNombre());
+        }
+        
+        if(edad != null){
+            datosAModificar.put("edad", String.valueOf(edad));
+        }else{
+            datosAModificar.put("edad", String.valueOf(personajeSinModificar.getEdad()));
+        }
+        
+        if(peso != null){
+            datosAModificar.put("peso", String.valueOf(peso));
+        }else{
+            datosAModificar.put("peso", String.valueOf(personajeSinModificar.getPeso()));
+        }
+        
+        if(historia != null){
+            datosAModificar.put("historia", historia);
+        }else{
+            datosAModificar.put("historia", personajeSinModificar.getHistoria());
+        }
+        
+        return datosAModificar;
     }
 }
