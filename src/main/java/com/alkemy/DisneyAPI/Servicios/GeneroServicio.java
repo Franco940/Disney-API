@@ -1,11 +1,10 @@
 package com.alkemy.DisneyAPI.Servicios;
 
 import com.alkemy.DisneyAPI.Entidades.Genero;
-import com.alkemy.DisneyAPI.Entidades.Pelicula;
 import com.alkemy.DisneyAPI.Repositorios.GeneroRepositorio;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -27,7 +26,8 @@ public class GeneroServicio {
         return genero;
     }
     
-    public List<Pelicula> buscarPeliculaPorGenero(String genero){
+    @Transactional(readOnly = true)
+    public Genero buscarPorGenero(String genero){
         return repositorioGenero.buscarPeliculaPorGenero(genero);
     }
 }
