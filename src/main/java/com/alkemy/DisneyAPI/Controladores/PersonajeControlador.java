@@ -1,7 +1,7 @@
 package com.alkemy.DisneyAPI.Controladores;
 
 import com.alkemy.DisneyAPI.Entidades.Personaje;
-import com.alkemy.DisneyAPI.Entidades.PersonajeResponse;
+import com.alkemy.DisneyAPI.Entidades.PeliculasPersonajes;
 import com.alkemy.DisneyAPI.Servicios.PersonajeServicio;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,8 +12,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,7 +33,7 @@ public class PersonajeControlador {
     
     
     @GetMapping("")
-    public List<PersonajeResponse> todosLosPersonajesYFiltros(@RequestParam(required = false, name = "nombre") String nombre, 
+    public List<PeliculasPersonajes> todosLosPersonajesYFiltros(@RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") String edad, @RequestParam(required = false, name = "peso") String peso, 
             @RequestParam(required = false, name = "idPelicula") String idPelicula, 
             @RequestParam(required = false, name = "idPersonaje") String idPersonaje) throws Exception{
@@ -42,17 +42,22 @@ public class PersonajeControlador {
         List<Personaje> personajes = personajesAcordeAlFiltro(idPersonaje, nombre, edad, peso, idPelicula);
         
         // Se adapta la información a lo solicitado
-        List<PersonajeResponse> response = new ArrayList();
+        List<PeliculasPersonajes> response = new ArrayList();
         for (Personaje personaje : personajes) {
-            PersonajeResponse personajeResponse = new PersonajeResponse();
+            PeliculasPersonajes personajeResponse = new PeliculasPersonajes();
             
             personajeResponse.setNombre(personaje.getNombre());
-            personajeResponse.setImgaen(personaje.getImagen());
+            personajeResponse.setImgaenPersonaje(personaje.getImagen());
             
             response.add(personajeResponse);
         }
         
         return response;
+    }
+    
+    @GetMapping("/detalle")
+    public Personaje personajeConDetalle(@RequestParam(required = true, name = "nombre") String nombre){
+        return personajeServicio.buscarPersonajePorNombre(nombre);
     }
     
     @PostMapping("/crear")
@@ -64,7 +69,7 @@ public class PersonajeControlador {
         return personajeServicio.crearPersonaje(nombre, edad, peso, historia, peliculas, imagen);
     }
     
-    @PutMapping("/editar")
+    @PatchMapping("/editar")
     public Personaje modificarPersonaje(@RequestParam(required = true, name = "id") String id, @RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") Integer edad, @RequestParam(required = false, name = "peso") Integer peso, 
             @RequestParam(required = false, name = "historia") String historia, @RequestParam(required = false, name = "imagen") MultipartFile imagen, 
@@ -86,11 +91,12 @@ public class PersonajeControlador {
     private List<Personaje> personajesAcordeAlFiltro(String idPersonaje, String nombre, String edad, String peso, String idPelicula){
         List<Personaje> personajes = personajeServicio.buscarTodosLosPersonajes();
         
+        // Si hay algún filtro, se sobre escribe la lista de personajes
         if(idPersonaje != null){
             personajes = (List<Personaje>) personajeServicio.buscarPersonajePorId(Long.valueOf(idPersonaje));
         }
         if(nombre != null){
-            personajes = personajeServicio.buscarPersonajePorNombre(nombre);
+            personajes = personajeServicio.buscarPersonajesPorNombre(nombre);
         }
         if(edad != null){
             personajes = personajeServicio.buscarPersonajePorEdad(Integer.valueOf(edad));
@@ -99,7 +105,7 @@ public class PersonajeControlador {
             personajes = personajeServicio.buscarPersonajePorPeso(Integer.valueOf(peso));
         }
         if(idPelicula != null){
-            personajes = personajeServicio.buscarPersonajeEnPeliculas(Integer.valueOf(idPelicula));
+            personajes = personajeServicio.buscarPersonajeEnPeliculas(Long.valueOf(idPelicula));
         }
         
         return personajes;
