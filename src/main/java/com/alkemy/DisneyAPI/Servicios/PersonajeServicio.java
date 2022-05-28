@@ -1,7 +1,9 @@
 package com.alkemy.DisneyAPI.Servicios;
 
 import com.alkemy.DisneyAPI.Entidades.Pelicula;
+import com.alkemy.DisneyAPI.Entidades.PersonajePeliculas;
 import com.alkemy.DisneyAPI.Entidades.Personaje;
+import com.alkemy.DisneyAPI.Repositorios.PersonajePeliculasRepositorio;
 import com.alkemy.DisneyAPI.Repositorios.PersonajeRepositorio;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,9 @@ public class PersonajeServicio {
     
     @Autowired
     private PersonajeRepositorio personajeRepo;
+    
+    @Autowired
+    private PersonajePeliculasRepositorio personajePeliculasRepo;
     
     @Autowired
     private PeliculaServicio peliculaServicio;
@@ -69,9 +74,21 @@ public class PersonajeServicio {
         }
         
         if(peliculas != null){
-            List<Pelicula> peliculasEncontradas = new ArrayList();
+            List<PersonajePeliculas> peliculasEncontradas = new ArrayList();
+            List<Long> idPeliculas = new ArrayList();
             for(String peliculaNombre : peliculas){
-                peliculasEncontradas.add(peliculaServicio.buscarPeliculaPorTitulo(peliculaNombre));
+                Pelicula pelicula = peliculaServicio.buscarPeliculaPorTitulo(peliculaNombre);
+                
+                // Mapeo la pelicula encontrada
+                PersonajePeliculas pr = new PersonajePeliculas();
+                pr.setId(pelicula.getId());
+                pr.setTitulo(pelicula.getTitulo());
+                pr.setFechaCreacion(pelicula.getFechaCreacion());
+                pr.setImgaen(pelicula.getImagen());
+                
+                personajePeliculasRepo.save(pr);
+                idPeliculas.add(pelicula.getId());
+                peliculasEncontradas.add(pr);
             }
             
             personaje.setPelicula(peliculasEncontradas);
@@ -79,6 +96,31 @@ public class PersonajeServicio {
         
         personajeRepo.save(personaje);
         return personaje;
+    }
+    
+    @Transactional()
+    public void actualizarPeliculasPersonajes(Pelicula pelicula, List<Long> idPersonaje){
+        List<PersonajePeliculas> peliculaList = new ArrayList();
+        
+        // Mapeo la pelicula a esta entidad
+        PersonajePeliculas pr = new PersonajePeliculas();
+        pr.setId(pelicula.getId());
+        pr.setTitulo(pelicula.getTitulo());
+        pr.setFechaCreacion(pelicula.getFechaCreacion());
+        pr.setImgaen(pelicula.getImagen());
+        peliculaList.add(pr);
+        
+        personajePeliculasRepo.save(pr);
+        
+        for(Long id : idPersonaje){
+            Personaje personaje = buscarPersonajePorId(id);
+            
+            List<PersonajePeliculas> peliculasEnLasQueApareceElPersonaje= personaje.getPelicula(); // Agarro todas las peliculas en las que aparece el personaje
+            peliculasEnLasQueApareceElPersonaje.add(pr); // le sumo la nueva pelicula en la que aparece
+            
+            personaje.setPelicula(peliculasEnLasQueApareceElPersonaje); // guardo nuevamente las peliculas
+            personajeRepo.save(personaje);
+        }
     }
     
     @Transactional(readOnly = true)
@@ -92,7 +134,12 @@ public class PersonajeServicio {
     }
     
     @Transactional(readOnly = true)
-    public List<Personaje> buscarPersonajePorNombre(String nombre){
+    public List<Personaje> buscarPersonajesPorNombre(String nombre){
+        return personajeRepo.buscarPersonajesPorNombre(nombre);
+    }
+    
+    @Transactional(readOnly = true)
+    public Personaje buscarPersonajePorNombre(String nombre){
         return personajeRepo.buscarPersonajePorNombre(nombre);
     }
     
@@ -107,7 +154,7 @@ public class PersonajeServicio {
     }
     
     @Transactional(readOnly = true)
-    public List<Personaje> buscarPersonajeEnPeliculas(Integer idPelicula){
+    public List<Personaje> buscarPersonajeEnPeliculas(Long idPelicula){
         return personajeRepo.buscarPersonajesEnPeliculas(idPelicula);
     }
     
