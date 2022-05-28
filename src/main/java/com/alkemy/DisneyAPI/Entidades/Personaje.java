@@ -29,7 +29,7 @@ public class Personaje {
     private byte[] imgaenPersonaje;
     
     @ManyToMany
-    private List<Pelicula> pelicula;
+    private List<PersonajePeliculas> pelicula;
 
     public Personaje() {
     }
@@ -78,11 +78,11 @@ public class Personaje {
         this.imgaenPersonaje = imagen;
     }
 
-    public List<Pelicula> getPelicula() {
+    public List<PersonajePeliculas> getPelicula() {
         return pelicula;
     }
 
-    public void setPelicula(List<Pelicula> pelicula) {
+    public void setPelicula(List<PersonajePeliculas> pelicula) {
         this.pelicula = pelicula;
     }
 }
