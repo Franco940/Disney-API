@@ -33,7 +33,7 @@ public class Pelicula {
     private byte[] imagenPelicula;
     
     @ManyToMany
-    private List<Personaje> personajes;
+    private List<PeliculasPersonajes> personajes;
     
 
     public Pelicula() {
@@ -75,11 +75,11 @@ public class Pelicula {
         this.fechaCreacion = fechaCreacion;
     }
 
-    public List<Personaje> getPersonajes() {
+    public List<PeliculasPersonajes> getPersonajes() {
         return personajes;
     }
 
-    public void setPersonajes(List<Personaje> personajes) {
+    public void setPersonajes(List<PeliculasPersonajes> personajes) {
         this.personajes = personajes;
     }
 }
