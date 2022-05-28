@@ -15,9 +15,15 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface PeliculaRepositorio extends JpaRepository<Pelicula, Long>{
     
-    @Query("SELECT p FROM Pelicula AS p WHERE p.titulo = :titulo")
+    @Query("SELECT p FROM Pelicula AS p WHERE p.titulo LIKE %:titulo%")
     public List<Pelicula> buscarPeliculasPorTitulo(@Param("titulo") String titulo);
     
     @Query("SELECT p FROM Pelicula AS p WHERE p.titulo = :titulo")
     public Pelicula buscarPeliculaPorTitulo(@Param("titulo") String titulo);
+    
+    @Query("SELECT p FROM Pelicula AS p ORDER BY p.titulo ASC")
+    public List<Pelicula> buscarPeliculasPorOrdenASC();
+    
+    @Query("SELECT p FROM Pelicula AS p ORDER BY p.titulo DESC")
+    public List<Pelicula> buscarPeliculasPorOrdenDESC();
 }
