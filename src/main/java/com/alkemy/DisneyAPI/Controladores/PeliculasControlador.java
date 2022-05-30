@@ -1,6 +1,7 @@
 package com.alkemy.DisneyAPI.Controladores;
 
 import com.alkemy.DisneyAPI.Entidades.Pelicula;
+import com.alkemy.DisneyAPI.Entidades.Personaje;
 import com.alkemy.DisneyAPI.Entidades.PersonajePeliculas;
 import com.alkemy.DisneyAPI.Servicios.PeliculaServicio;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,7 +37,7 @@ public class PeliculasControlador {
     
     @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("")
-    public List<PersonajePeliculas> todosLosPeliculasYFiltros(@RequestParam(required = false, name = "titulo") String titulo, 
+    public ResponseEntity<List<PersonajePeliculas>> todosLosPeliculasYFiltros(@RequestParam(required = false, name = "titulo") String titulo, 
             @RequestParam(required = false, name = "genero") String genero, 
             @RequestParam(required = false, name = "orden") String orden) throws Exception{
         
@@ -53,7 +55,7 @@ public class PeliculasControlador {
             response.add(peliculaResponse);
         }
         
-        return response;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
     @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
@@ -64,13 +66,48 @@ public class PeliculasControlador {
     
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/crear")
-    public Pelicula crearPelicula(@RequestParam(required = true, name = "titulo") String titulo, 
+    public ResponseEntity<Pelicula> crearPelicula(@RequestParam(required = true, name = "titulo") String titulo, 
             @RequestParam(required = true, name = "calificacion") Integer calificacion, 
             @RequestParam(required = true, name = "fechaDeCreacion") @DateTimeFormat(pattern = "dd/MM/yyyy") Date fechaCreacion, 
             @RequestParam(required = true, name = "imagen") MultipartFile imagen, 
             @RequestParam(required = true, name = "personajes") String[] personajes) throws JsonProcessingException, Exception{
         
-        return servicioPelicula.crearPelicula(titulo, calificacion, fechaCreacion, imagen, personajes);
+        Pelicula pelicula = servicioPelicula.crearPelicula(titulo, calificacion, fechaCreacion, imagen, personajes);
+        
+        return new ResponseEntity<>(pelicula, HttpStatus.OK);
+    }
+    
+    @PreAuthorize("hasRole('ADMIN'")
+    @PostMapping("/peliculas/{idPelicula}/personajes/{idPersonaje}")
+    public ResponseEntity<Pelicula> agregarPersonajeEnPelicula(@PathVariable() String idPelicula, 
+            @PathVariable() String idPersonaje){
+        
+        Personaje personaje = servicioPelicula.buscarPersonaje(Long.valueOf(idPersonaje));
+        
+        Pelicula pelicula = servicioPelicula.buscarPeliculaPorId(Long.valueOf(idPelicula));
+        Long[] idParaPasarPorParametro = {pelicula.getId()};
+        
+        servicioPelicula.actualizarPersonajeEnPeliculas(personaje, idParaPasarPorParametro);
+        
+        pelicula = servicioPelicula.buscarPeliculaPorId(Long.valueOf(idPelicula));
+        
+        return new ResponseEntity<>(pelicula, HttpStatus.ACCEPTED);
+    }
+    
+    @PreAuthorize("hasRole('ADMIN'")
+    @DeleteMapping("/peliculas/{idPelicula}/personajes/{idPersonaje}")
+    public ResponseEntity<Pelicula> borrarPersonajeEnPelicula(@PathVariable() String idPelicula, 
+            @PathVariable() String idPersonaje){
+        
+        Personaje personaje = servicioPelicula.buscarPersonaje(Long.valueOf(idPersonaje));
+        
+        Pelicula pelicula = servicioPelicula.buscarPeliculaPorId(Long.valueOf(idPelicula));
+        
+        servicioPelicula.borrarPersonajeEnPelicula(personaje, pelicula.getId());
+        
+        pelicula = servicioPelicula.buscarPeliculaPorId(Long.valueOf(idPelicula));
+        
+        return new ResponseEntity<>(pelicula, HttpStatus.ACCEPTED);
     }
     
     @PreAuthorize("hasRole('ADMIN')")

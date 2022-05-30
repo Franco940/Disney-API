@@ -108,6 +108,10 @@ public class PeliculaServicio {
         }
     }
     
+    public Personaje buscarPersonaje(Long id){
+        return personajeServicio.buscarPersonajePorId(id);
+    }
+    
     @Transactional()
     public void actualizarPersonajeEnPeliculas(Personaje personaje, Long[] idPelicula){
         List<PeliculasPersonajes> personajeList = new ArrayList();
@@ -129,6 +133,22 @@ public class PeliculaServicio {
             pelicula.setPersonajes(personajesQueAparecenEnLaPelicula);
             repositorioPelicula.save(pelicula);
         }
+    }
+    
+    @Transactional()
+    public void borrarPersonajeEnPelicula(Personaje personajeABorrar, Long idPelicula){
+        Pelicula pelicula = buscarPeliculaPorId(idPelicula);
+        List<PeliculasPersonajes> listaActualizadaDePersonajes = new ArrayList();
+        
+        for(PeliculasPersonajes p : pelicula.getPersonajes()){
+            if(p.getId() != personajeABorrar.getId()){
+                listaActualizadaDePersonajes.add(p);
+            }
+        }
+        
+        
+        pelicula.setPersonajes(listaActualizadaDePersonajes);
+        repositorioPelicula.save(pelicula);
     }
     
     @Transactional()

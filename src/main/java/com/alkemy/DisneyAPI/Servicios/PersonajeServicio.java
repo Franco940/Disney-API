@@ -123,6 +123,11 @@ public class PersonajeServicio {
         }
     }
     
+    @Transactional()
+    public void borrarPeliculaDelPersonaje(Personaje personaje, Long idPelicula){
+        
+    }
+    
     @Transactional(readOnly = true)
     public List<Personaje> buscarTodosLosPersonajes(){
         return personajeRepo.findAll();

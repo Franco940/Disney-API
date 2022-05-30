@@ -34,7 +34,7 @@ public class PersonajeControlador {
     
     @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("")
-    public List<PeliculasPersonajes> todosLosPersonajesYFiltros(@RequestParam(required = false, name = "nombre") String nombre, 
+    public ResponseEntity<List<PeliculasPersonajes>> todosLosPersonajesYFiltros(@RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") String edad, @RequestParam(required = false, name = "peso") String peso, 
             @RequestParam(required = false, name = "idPelicula") String idPelicula, 
             @RequestParam(required = false, name = "idPersonaje") String idPersonaje) throws Exception{
@@ -53,28 +53,32 @@ public class PersonajeControlador {
             response.add(personajeResponse);
         }
         
-        return response;
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
     
     @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("/detalle")
-    public Personaje personajeConDetalle(@RequestParam(required = true, name = "nombre") String nombre){
-        return personajeServicio.buscarPersonajePorNombre(nombre);
+    public ResponseEntity<Personaje> personajeConDetalle(@RequestParam(required = true, name = "nombre") String nombre){
+        Personaje personaje = personajeServicio.buscarPersonajePorNombre(nombre);
+        
+        return new ResponseEntity<> (personaje, HttpStatus.OK);
     }
     
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/crear")
-    public Personaje crearPersonaje(@RequestParam(required = true, name = "nombre") String nombre, 
+    public ResponseEntity<Personaje> crearPersonaje(@RequestParam(required = true, name = "nombre") String nombre, 
             @RequestParam(required = true, name = "edad") Integer edad, @RequestParam(required = true, name = "peso") Integer peso, 
             @RequestParam(required = true, name = "historia") String historia, @RequestParam(required = true, name = "imagen") MultipartFile imagen, 
             @RequestParam(required = false, name = "peliculas") String [] peliculas) throws Exception{
         
-        return personajeServicio.crearPersonaje(nombre, edad, peso, historia, peliculas, imagen);
+        Personaje personaje = personajeServicio.crearPersonaje(nombre, edad, peso, historia, peliculas, imagen);
+        
+        return new ResponseEntity<>(personaje, HttpStatus.ACCEPTED);
     }
     
     @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/editar")
-    public Personaje modificarPersonaje(@RequestParam(required = true, name = "id") String id, @RequestParam(required = false, name = "nombre") String nombre, 
+    public ResponseEntity<Personaje> modificarPersonaje(@RequestParam(required = true, name = "id") String id, @RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") Integer edad, @RequestParam(required = false, name = "peso") Integer peso, 
             @RequestParam(required = false, name = "historia") String historia, @RequestParam(required = false, name = "imagen") MultipartFile imagen, 
             @RequestParam(required = false, name = "peliculas") String[] peliculas) throws Exception{
@@ -82,7 +86,9 @@ public class PersonajeControlador {
         Personaje personajeAModificar = personajeServicio.buscarPersonajePorId(Long.valueOf(id));
         Map<String, String> datosAModificar = guardarDatosAModificar(personajeAModificar, nombre, edad, peso, historia);
         
-        return personajeServicio.modificarPersonaje(personajeAModificar, datosAModificar, peliculas, imagen);
+        Personaje personaje = personajeServicio.modificarPersonaje(personajeAModificar, datosAModificar, peliculas, imagen);
+        
+        return new ResponseEntity<>(personaje, HttpStatus.ACCEPTED);
     }
     
     @PreAuthorize("hasRole('ADMIN')")
