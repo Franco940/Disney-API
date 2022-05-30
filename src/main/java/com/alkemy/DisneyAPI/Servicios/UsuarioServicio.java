@@ -29,7 +29,7 @@ public class UsuarioServicio{
         usuario.setContrasenia(passwordEncoder.encode(usuario.getContrasenia()));
         repositorioUsuario.save(usuario);
     }
-    
+
     @Transactional(readOnly = true)
     public Usuario buscarUsuarioPorNombre(String nombre){
         return repositorioUsuario.buscarUsuarioPorNombre(nombre);
