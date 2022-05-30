@@ -29,12 +29,6 @@ public class PersonajePeliculas {
     public PersonajePeliculas() {
     }
 
-    public Long getId() {
-        return id;
-    }
-    
-    
-
     public void setId(Long id) {
         this.id = id;
     }

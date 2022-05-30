@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,6 +33,7 @@ public class PeliculasControlador {
     private PeliculaServicio servicioPelicula;
     
     
+    @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("")
     public List<PersonajePeliculas> todosLosPeliculasYFiltros(@RequestParam(required = false, name = "titulo") String titulo, 
             @RequestParam(required = false, name = "genero") String genero, 
@@ -54,11 +56,13 @@ public class PeliculasControlador {
         return response;
     }
     
+    @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("/detalle")
     public Pelicula peliculaConDetalle(@RequestParam(required = true, name = "titulo") String titulo){
         return servicioPelicula.buscarPeliculaPorTitulo(titulo);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/crear")
     public Pelicula crearPelicula(@RequestParam(required = true, name = "titulo") String titulo, 
             @RequestParam(required = true, name = "calificacion") Integer calificacion, 
@@ -69,6 +73,7 @@ public class PeliculasControlador {
         return servicioPelicula.crearPelicula(titulo, calificacion, fechaCreacion, imagen, personajes);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/borrar")
     public ResponseEntity<String> borrarPelicula(@RequestParam(required = true, name = "id") String id){
         servicioPelicula.borrarPelicula(Long.valueOf(id));

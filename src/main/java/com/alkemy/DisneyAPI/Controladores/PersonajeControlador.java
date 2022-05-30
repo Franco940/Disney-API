@@ -10,6 +10,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -31,7 +32,7 @@ public class PersonajeControlador {
     @Autowired
     private PersonajeServicio personajeServicio;
     
-    
+    @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("")
     public List<PeliculasPersonajes> todosLosPersonajesYFiltros(@RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") String edad, @RequestParam(required = false, name = "peso") String peso, 
@@ -55,11 +56,13 @@ public class PersonajeControlador {
         return response;
     }
     
+    @PreAuthorize("hasRole('USER') OR hasRole('ADMIN')")
     @GetMapping("/detalle")
     public Personaje personajeConDetalle(@RequestParam(required = true, name = "nombre") String nombre){
         return personajeServicio.buscarPersonajePorNombre(nombre);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/crear")
     public Personaje crearPersonaje(@RequestParam(required = true, name = "nombre") String nombre, 
             @RequestParam(required = true, name = "edad") Integer edad, @RequestParam(required = true, name = "peso") Integer peso, 
@@ -69,6 +72,7 @@ public class PersonajeControlador {
         return personajeServicio.crearPersonaje(nombre, edad, peso, historia, peliculas, imagen);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/editar")
     public Personaje modificarPersonaje(@RequestParam(required = true, name = "id") String id, @RequestParam(required = false, name = "nombre") String nombre, 
             @RequestParam(required = false, name = "edad") Integer edad, @RequestParam(required = false, name = "peso") Integer peso, 
@@ -81,6 +85,7 @@ public class PersonajeControlador {
         return personajeServicio.modificarPersonaje(personajeAModificar, datosAModificar, peliculas, imagen);
     }
     
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/borrar")
     public ResponseEntity<String> borrarPersonaje(@RequestParam(required = true, name = "id") String id){
         personajeServicio.borrarPersonaje(Long.valueOf(id));
