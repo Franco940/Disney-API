@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class JwtService {
-    public static final String BEARER = "Bearer";
+    public static final String BEARER = "Bearer ";
     private static final String SECRET = "clavesecreta1234";
     private static final int EXPIRA = 1800000; // 30 minutos
     private static final String EMISOR = "DisneyAPI";
@@ -47,7 +47,7 @@ public class JwtService {
         try{
             return JWT.require(Algorithm.HMAC512(SECRET))
                     .withIssuer(EMISOR).build()
-                    .verify(authorization.substring(BEARER.length() + 1));
+                    .verify(authorization.substring(BEARER.length()));
             
         }catch(Exception ex){
             throw new Exception("El JWT esta mal. " + ex.getMessage());
