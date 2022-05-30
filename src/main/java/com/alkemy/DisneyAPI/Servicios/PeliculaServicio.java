@@ -118,14 +118,19 @@ public class PeliculaServicio {
         
         // Mapeo la pelicula a esta entidad
         PeliculasPersonajes pr = new PeliculasPersonajes();
+        pr.setId(personaje.getId());
         pr.setNombre(personaje.getNombre());
         pr.setImgaenPersonaje(personaje.getImagen());
         personajeList.add(pr);
         
         peliculasPersonajesRepo.save(pr);
         
+        List<Long> idPersonaje = new ArrayList();
+        idPersonaje.add(personaje.getId()); // Para actualizar las peliculas del personaje
+        
         for(Long id: idPelicula){
             Pelicula pelicula = buscarPeliculaPorId(id);
+            personajeServicio.actualizarPeliculasPersonajes(pelicula, idPersonaje); // Actualizo las peliculas del personaje
             
             List<PeliculasPersonajes> personajesQueAparecenEnLaPelicula = pelicula.getPersonajes();
             personajesQueAparecenEnLaPelicula.add(pr);
@@ -146,7 +151,7 @@ public class PeliculaServicio {
             }
         }
         
-        
+
         pelicula.setPersonajes(listaActualizadaDePersonajes);
         repositorioPelicula.save(pelicula);
     }

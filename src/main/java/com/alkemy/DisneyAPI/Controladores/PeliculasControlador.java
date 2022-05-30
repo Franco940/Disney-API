@@ -77,8 +77,8 @@ public class PeliculasControlador {
         return new ResponseEntity<>(pelicula, HttpStatus.OK);
     }
     
-    @PreAuthorize("hasRole('ADMIN'")
-    @PostMapping("/peliculas/{idPelicula}/personajes/{idPersonaje}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/{idPelicula}/personajes/{idPersonaje}")
     public ResponseEntity<Pelicula> agregarPersonajeEnPelicula(@PathVariable() String idPelicula, 
             @PathVariable() String idPersonaje){
         
@@ -94,8 +94,8 @@ public class PeliculasControlador {
         return new ResponseEntity<>(pelicula, HttpStatus.ACCEPTED);
     }
     
-    @PreAuthorize("hasRole('ADMIN'")
-    @DeleteMapping("/peliculas/{idPelicula}/personajes/{idPersonaje}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{idPelicula}/personajes/{idPersonaje}")
     public ResponseEntity<Pelicula> borrarPersonajeEnPelicula(@PathVariable() String idPelicula, 
             @PathVariable() String idPersonaje){
         
